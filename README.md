@@ -66,3 +66,15 @@ Tests takes time to write, and time to maintain, so they have to be meaningful. 
 Run tests on each commit. The rest is in the name of 'test driven development'.
 
 For this to be applicable, you have to have a good idea of what it is you are building. But from there, it's pretty easy to apply: Write a failing test, fix the failing test by implementing the logic. Rinse, repeat.
+
+## Thoughts on the architecture
+
+Here I have assumed a fast local DB - to be able to get and process the raw transactions for each request.
+
+This is flexible, in the sense that we only need to do a code update to get new types of data in the aggregates, and a bug doesn't affect any stored data (stored here, at least).
+
+However, given a large enough dataset, even a local DB will reach a point where it's going to consume a lot of resources to reprocess all events since the dawn of time.
+
+Caching of intermediate calculations could probably solve this, but assuming our load comes from a large enough subset of the total users, we should probably instead just calculate and store the aggregates, as the data from the transactions API is streamed in. Then this service would only need to do lookups, and could effectively return responses to clients in constant time.
+
+The downside of that of course being, that we risk having to recalculate the aggregates when changing the content, and handle this in a transparent way for the clients (so they don't experience a period of data unavailability).
