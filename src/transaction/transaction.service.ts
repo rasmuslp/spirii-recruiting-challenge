@@ -76,10 +76,12 @@ export class TransactionService {
 
     const payoutsToProcess = [];
     for (const [userId, amount] of Object.entries(userIdPendingPayout)) {
-      payoutsToProcess.push({
-        userId,
-        amount,
-      });
+      if (amount !== 0) {
+        payoutsToProcess.push({
+          userId,
+          amount,
+        });
+      }
     }
 
     return payoutsToProcess;
